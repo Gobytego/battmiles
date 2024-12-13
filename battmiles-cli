@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Get user input for battery capacity (Ah)
+read -p "Enter battery capacity (Ah): " battery_capacity_ah
+
+# Get user input for motor power (Watts)
+read -p "Enter motor power (Watts): " motor_power_watts
+
+# Get user input for battery voltage (Volts)
+read -p "Enter battery voltage (Volts): " battery_voltage
+
+# Get user input for remaining battery percentage (0-100)
+read -p "Enter remaining battery percentage (0-100): " battery_percent
+
+# Get user input for rider weight + equipment (lbs)
+read -p "Enter rider weight + equipment (lbs): " rider_weight_equipment
+
+# Base watts per mile (adjust as needed)
+base_watts_per_mile=19.95
+
+# Rider weight adjustment factor
+weight_factor=$(echo "scale=2; 1 + ($rider_weight_equipment / 700)" | bc)
+
+# Motor power adjustment factor
+motor_power_factor=$(echo "scale=2; 1 + ($motor_power_watts / 2000)" | bc)
+
+# Combined adjustment factor
+watts_per_mile=$(echo "scale=2; $base_watts_per_mile * $weight_factor * $motor_power_factor" | bc)
+
+# Calculate total energy in Wh
+total_energy_wh=$(echo "scale=2; $battery_capacity_ah * $battery_voltage" | bc)
+
+# Calculate remaining energy in Wh
+remaining_energy_wh=$(echo "scale=2; $total_energy_wh * ($battery_percent / 100)" | bc)
+
+# Calculate estimated miles remaining
+estimated_miles=$(echo "scale=2; $remaining_energy_wh / $watts_per_mile" | bc)
+
+# Display the result
+echo "Estimated miles remaining: $(echo "$estimated_miles" | bc -l)" miles
